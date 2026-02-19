@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isolate Drums from Any Song</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Code+Pro:wght@400;600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-body-sans: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+
+  --color-ink: #2c2825;
+  --color-ink-soft: #5c5550;
+  --color-ink-muted: #8a8580;
+  --color-cream: #f7f5f2;
+  --color-linen: #f0ede8;
+  --teal-standard: #4b7c8c;
+  --teal-deep: #1a3a40;
+  --teal-pale: #b8d4dc;
+  --ember-terracotta: #c4704b;
+
+  --color-text: var(--color-ink);
+  --color-text-soft: var(--color-ink-soft);
+  --color-text-muted: var(--color-ink-muted);
+  --color-background: white;
+  --color-surface: var(--color-cream);
+  --color-surface-raised: var(--color-linen);
+  --color-accent: var(--teal-standard);
+  --color-accent-deep: var(--teal-deep);
+  --color-accent-pale: var(--teal-pale);
+  --color-callout: var(--ember-terracotta);
+  --color-callout-deep: #a85e3e;
+
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+  --space-xxl: 64px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-text);
+  background: var(--color-background);
+  margin: 0;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.container { max-width: 820px; margin: 0 auto; }
+
+h1, h2, h3 {
+  line-height: 1.2;
+  margin: 0 0 var(--space-md) 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+h1 { font-family: var(--font-display); }
+h2, h3 { font-family: var(--font-body-sans); }
+
+h1 {
+  font-size: 42px;
+  margin-bottom: var(--space-sm);
+  font-variation-settings: 'opsz' 144;
+}
+
+.subtitle {
+  font-family: var(--font-body-sans);
+  font-size: 18px;
+  color: var(--color-text-soft);
+  margin: 0 0 var(--space-xl) 0;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 32px;
+  margin-top: var(--space-xxl);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-linen);
+  font-variation-settings: 'opsz' 96;
+}
+
+h3 {
+  font-size: 24px;
+  margin-top: var(--space-lg);
+  color: var(--color-text-soft);
+}
+
+p { margin: 0 0 var(--space-md) 0; }
+ul, ol { margin: 0 0 var(--space-md) 0; padding-left: var(--space-lg); }
+li { margin-bottom: var(--space-xs); }
+
+strong { font-weight: 600; }
+
+a { color: var(--color-accent); }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--color-linen);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--color-accent-deep);
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--color-linen);
+  padding: var(--space-md);
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 var(--space-md) 0;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: var(--color-text);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-md) 0 var(--space-lg) 0;
+}
+
+thead { background: var(--color-accent); color: white; }
+
+th, td {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-linen);
+}
+
+th {
+  font-family: var(--font-body-sans);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td { font-size: 15px; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--color-cream); }
+td code { font-size: 13px; }
+
+.callout {
+  background: var(--color-cream);
+  border-left: 4px solid var(--color-callout);
+  padding: var(--space-md) var(--space-md) var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  border-radius: 6px;
+}
+
+.callout-label {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+  color: var(--color-callout);
+  font-size: 16px;
+  font-family: var(--font-body-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.callout p:last-child, .callout ul:last-child, .callout pre:last-child { margin-bottom: 0; }
+
+.folder-structure {
+  background: var(--color-linen);
+  padding: var(--space-md);
+  border-radius: 8px;
+  margin: var(--space-md) 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.folder-structure .folder { color: var(--color-accent); font-weight: 600; }
+.folder-structure .comment { color: var(--color-text-muted); }
+
+header {
+  border-bottom: 3px solid var(--color-linen);
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+/* Download buttons */
+.download-group {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin: var(--space-lg) 0;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body-sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: var(--color-accent);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  min-height: 48px;
+  transition: background 0.15s ease;
+}
+
+.download-btn:hover, .download-btn:focus-visible {
+  background: var(--color-accent-deep);
+}
+
+.download-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.download-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.download-btn-secondary { background: var(--color-callout); }
+.download-btn-secondary:hover, .download-btn-secondary:focus-visible { background: var(--color-callout-deep); }
+
+.download-btn-tertiary { background: var(--color-ink-soft); }
+.download-btn-tertiary:hover, .download-btn-tertiary:focus-visible { background: var(--color-ink); }
+
+/* Intro box */
+.intro-box {
+  background: var(--color-cream);
+  border: 2px solid var(--color-accent-pale);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+.intro-box h3 {
+  margin-top: 0;
+  color: var(--color-accent-deep);
+}
+
+.intro-box p {
+  font-family: var(--font-body-sans);
+  font-size: 15px;
+}
+
+.intro-box p:last-child { margin-bottom: 0; }
+
+/* Copyable command blocks */
+.cmd-block {
+  position: relative;
+  background: var(--color-linen);
+  padding: var(--space-md);
+  padding-right: 60px;
+  border-radius: 8px;
+  margin: var(--space-sm) 0 var(--space-md) 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.cmd-block code {
+  background: none;
+  padding: 0;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 50%;
+  right: var(--space-sm);
+  transform: translateY(-50%);
+  font-family: var(--font-body-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+  background: white;
+  border: 1px solid var(--color-accent-pale);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+.copy-btn.copied {
+  color: var(--color-callout);
+  border-color: var(--color-callout);
+}
+
+/* Numbered instruction steps */
+.instruction-step {
+  display: flex;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+  align-items: flex-start;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  font-family: var(--font-body-sans);
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-label {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+  color: var(--color-text);
+  font-family: var(--font-body-sans);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.step-content p {
+  font-size: 15px;
+  color: var(--color-text-soft);
+}
+
+.step-content p:last-child { margin-bottom: 0; }
+
+@media print {
+  body { background: white; padding: 0; }
+  .callout, table { break-inside: avoid; }
+  h2, h3 { break-after: avoid; }
+  .download-group { display: none; }
+  .copy-btn { display: none; }
+}
+
+@media (max-width: 600px) {
+  body { padding: var(--space-md) var(--space-sm); }
+  h1 { font-size: 32px; }
+  h2 { font-size: 26px; }
+  table { font-size: 13px; }
+  th, td { padding: var(--space-xs) var(--space-sm); }
+  .download-group { flex-direction: column; }
+  .download-btn { justify-content: center; }
+  .instruction-step { gap: var(--space-sm); }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <h1>Isolate Drums from Any Song</h1>
+  <p class="subtitle">Use free, open-source AI to extract drum tracks from recordings. Runs on your Mac, no account needed, nothing leaves your computer. No programming experience required.</p>
+</header>
+
+<section>
+  <h2>What This Does</h2>
+
+  <p>You give it a song. It gives you back the drums by themselves — separated from the vocals, bass, guitars, and everything else. It also gives you a version of the song with the drums removed, so you have both sides of the split.</p>
+
+  <p>This uses <strong>Demucs</strong>, an AI model built by Meta Research that runs locally on your computer. There's no subscription, no upload limit, and no internet connection needed after setup. A typical song takes 1–3 minutes to process.</p>
+
+  <p>Everything on this page works through <strong>Terminal</strong>, the text-based command app built into every Mac. If you've never used it, that's fine — the guide walks through every step, and you'll mostly be copying and pasting.</p>
+
+  <div class="download-group">
+    <button class="download-btn" onclick="downloadSetup()">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Setup Script
+    </button>
+    <button class="download-btn download-btn-secondary" onclick="downloadIsolate()">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Isolation Script
+    </button>
+  </div>
+</section>
+
+<section>
+  <h2>What You Get</h2>
+
+  <p>For each song you process, you'll get these files in a folder on your Desktop:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What's In It</th>
+        <th>Good For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>drums.wav</strong></td>
+        <td>Isolated drum track</td>
+        <td>Sampling, looping, studying grooves</td>
+      </tr>
+      <tr>
+        <td><strong>no_drums.wav</strong></td>
+        <td>Everything except drums</td>
+        <td>Playing along, remixing, practice</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The isolation isn't perfect — you may hear faint traces of other instruments bleeding through, especially on dense mixes. But on most well-recorded music, the drums come out remarkably clean.</p>
+
+  <p>Each stem file is about 40–50 MB for a typical 4-minute song. WAV files are uncompressed audio — the highest quality format, but large. If you need smaller files, the <a href="#customize">Customize and Iterate</a> section explains how to output MP3 instead.</p>
+</section>
+
+<section>
+  <h2>Before You Start</h2>
+
+  <div class="intro-box">
+    <h3>What's Terminal?</h3>
+    <p>Terminal is an app on your Mac that lets you run commands by typing them. It comes pre-installed — you don't need to download anything.</p>
+    <p><strong>To open it:</strong> Press <strong>Command + Space</strong> to open Spotlight, type <strong>Terminal</strong>, and press Enter.</p>
+    <p>You'll see a window with a blinking cursor. That's where you'll paste the commands from this guide. Each command runs when you press Enter.</p>
+  </div>
+
+  <h3>System Requirements</h3>
+  <ul>
+    <li><strong>macOS</strong> 11.0 or newer (to check: click the Apple menu in the top-left corner, then "About This Mac")</li>
+    <li><strong>Disk space:</strong> About 2 GB for the tools, plus ~200 MB per song during processing</li>
+    <li><strong>RAM:</strong> 8 GB minimum. 16 GB is better for long songs.</li>
+    <li><strong>Time:</strong> Setup takes 10–15 minutes (mostly waiting for downloads). Each song takes 1–3 minutes after that.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Setup (One Time)</h2>
+
+  <p>You only need to do this once. It installs three free tools: <strong>Demucs</strong> (the AI that splits audio), <strong>FFmpeg</strong> (converts audio formats), and <strong>yt-dlp</strong> (downloads from YouTube, if you want that).</p>
+
+  <div class="instruction-step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <p class="step-label">Download the setup script</p>
+      <p>Click the <strong>"Download Setup Script"</strong> button at the top of this page. The file (<code>drum-setup.sh</code>) will appear in your Downloads folder.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <p class="step-label">Open Terminal</p>
+      <p>Press <strong>Command + Space</strong>, type <strong>Terminal</strong>, press Enter.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <p class="step-label">Run the setup script</p>
+      <p>Copy this command, paste it into Terminal, and press Enter:</p>
+      <div class="cmd-block">
+        <code>bash ~/Downloads/drum-setup.sh</code>
+        <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      </div>
+      <p>The script will show a <code>+</code> next to each tool as it installs. If anything fails, it tells you what went wrong.</p>
+      <p>The first run downloads the Demucs AI model (~1.5 GB). This is the slowest part. After that, everything runs locally.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">4</div>
+    <div class="step-content">
+      <p class="step-label">Verify it worked</p>
+      <p>You should see <strong>"Setup complete"</strong> at the bottom. If you see any red <code>x</code> markers, the script will explain what to do. It's safe to run the setup script multiple times — it skips anything already installed.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p class="callout-label">About Homebrew</p>
+    <p>The setup script uses <strong>Homebrew</strong>, a free tool that installs software on Macs. If you don't have it, the script will tell you. To install it, paste this into Terminal:</p>
+    <div class="cmd-block">
+      <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
+      <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+    </div>
+    <p>Then run the setup script again.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Isolate Drums from a Song</h2>
+
+  <p>After setup, this is the part you'll repeat for each song. There are two ways to give it audio: a file on your computer, or a YouTube link.</p>
+
+  <h3>Option A: From an Audio File</h3>
+
+  <p>If you have an audio file on your computer, this is the fastest path. Supported formats: WAV, MP3, FLAC, AIFF, OGG, M4A, and WMA.</p>
+
+  <div class="instruction-step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <p class="step-label">Open Terminal</p>
+      <p>If it's not already open: <strong>Command + Space</strong>, type <strong>Terminal</strong>, press Enter.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <p class="step-label">Type the beginning of the command</p>
+      <p>Type this, but <strong>don't press Enter yet</strong> — leave a space at the end:</p>
+      <div class="cmd-block">
+        <code>bash ~/Downloads/isolate-drums.sh </code>
+        <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <p class="step-label">Drag your audio file into the Terminal window</p>
+      <p>Find the audio file in Finder, then drag it directly into the Terminal window. This pastes the file path automatically — no need to type it. Now press Enter.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">4</div>
+    <div class="step-content">
+      <p class="step-label">Wait for it to finish</p>
+      <p>You'll see progress messages as Demucs works. A typical song takes 1–3 minutes. When it's done, it tells you exactly where to find the files.</p>
+    </div>
+  </div>
+
+  <h3>Option B: From a YouTube Link</h3>
+
+  <p>If you don't have the audio file, the script can download it from YouTube first.</p>
+
+  <div class="instruction-step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <p class="step-label">Copy the YouTube URL</p>
+      <p>Go to the YouTube video and copy the URL from your browser's address bar.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <p class="step-label">Run the isolation script with the URL</p>
+      <p>In Terminal, type:</p>
+      <div class="cmd-block">
+        <code>bash ~/Downloads/isolate-drums.sh "https://youtube.com/watch?v=YOUR_VIDEO_ID"</code>
+        <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      </div>
+      <p>Replace the URL with the one you copied. Keep the quotation marks.</p>
+    </div>
+  </div>
+
+  <div class="instruction-step">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <p class="step-label">Wait for download + processing</p>
+      <p>The script downloads the audio first (~30 seconds), then runs Demucs (~1–3 minutes). Output files appear on your Desktop when it's done.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where Files End Up</h2>
+
+  <div class="folder-structure">
+<span class="folder">~/Desktop/Drum-Stems/</span>
+  <span class="folder">Funky-Drummer/</span>
+    drums.wav          <span class="comment"># The isolated drum track</span>
+    no_drums.wav       <span class="comment"># Everything except drums</span>
+  <span class="folder">Amen-Brother/</span>
+    drums.wav
+    no_drums.wav
+  </div>
+
+  <p>Each song gets its own subfolder. Processing the same song again overwrites the previous output.</p>
+</section>
+
+<section>
+  <h2>Choosing a Model</h2>
+
+  <p>Demucs has several AI models. The script uses the fast one by default. If you want higher quality and don't mind waiting longer, you can switch.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Speed</th>
+        <th>Quality</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>htdemucs</strong></td>
+        <td>~1–2 min/song</td>
+        <td>Good</td>
+        <td>Most songs, quick results</td>
+      </tr>
+      <tr>
+        <td><strong>htdemucs_ft</strong></td>
+        <td>~3–5 min/song</td>
+        <td>Better</td>
+        <td>Dense mixes, important samples, classic breaks</td>
+      </tr>
+      <tr>
+        <td><strong>htdemucs_6s</strong></td>
+        <td>~3–5 min/song</td>
+        <td>Good</td>
+        <td>When you also want guitar and piano separated</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>To use a different model, add <code>--model</code> after the script name:</p>
+
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh --model htdemucs_ft "song.wav"</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+  </div>
+
+  <p>The fine-tuned model (<code>htdemucs_ft</code>) downloads an additional ~800 MB the first time. After that, it's cached locally.</p>
+</section>
+
+<section>
+  <h2>Tips for Better Drum Isolation</h2>
+
+  <div class="callout">
+    <p class="callout-label">Start with the best source you can find</p>
+    <p>Demucs works best on well-recorded, high-quality audio. A lossless file (WAV, FLAC) or a high-bitrate MP3 (320 kbps) will produce cleaner drums than a low-quality rip. If you're pulling from YouTube, the script grabs the highest quality available.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-label">Acoustic drums isolate best</p>
+    <p>Real drums — kits, congas, bongos, tambourines — separate cleanly on most recordings. Heavily processed electronic drums (808s, synth percussion, drum machines layered with effects) can be trickier because the AI sometimes confuses them with bass or synth sounds.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-label">Drum breaks are the ideal use case</p>
+    <p>Sections where the drums play solo or nearly solo (classic funk and soul breaks, intro fills, breakdown sections) isolate extremely well. The Amen Break, Funky Drummer, Apache — these all come out pristine.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-label">Trim before processing for faster results</p>
+    <p>If you only need the drums from a 4-bar break in a 6-minute song, trim the audio first. Demucs processes the entire file — a shorter input means faster output.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-label">Two-stem mode sounds better than extracting from four</p>
+    <p>The script uses <code>--two-stems drums</code> by default, which tells Demucs to focus entirely on separating "drums" from "everything else." This produces a cleaner drum track than running 4-stem mode and taking the drum stem from that.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Going Deeper: Kick, Snare, and Hi-Hat</h2>
+
+  <p>Demucs isolates "drums" as a single group. If you want individual components — kick, snare, hi-hat, toms, cymbals — that requires a second tool. The best open-source option for this right now is a two-stage approach.</p>
+
+  <h3>The Two-Stage Method</h3>
+
+  <p><strong>Stage 1:</strong> Use Demucs to isolate the full drum stem (what the script above already does). <strong>Stage 2:</strong> Pass that isolated drum track through a second model trained specifically on individual drum separation.</p>
+
+  <h3>Running the Two-Stage Pipeline</h3>
+
+  <p>The best free option for Stage 2 is <strong>LarsNet</strong> from Politecnico di Milano. Here's the complete workflow:</p>
+
+  <pre><code># Stage 1 — Isolate drums with Demucs (already done if you ran the script)
+source ~/demucs-env/bin/activate
+demucs --two-stems drums -n htdemucs "song.wav"
+# Result: separated/htdemucs/song/drums.wav
+
+# Stage 2 — Split drums into kick/snare/hat/toms/cymbals with LarsNet
+cd ~/larsnet
+source ~/larsnet-env/bin/activate
+python separate.py -i /path/to/folder/with/drums.wav -o ~/Desktop/Drum-Parts
+
+# Output structure:
+#   ~/Desktop/Drum-Parts/kick/drums.wav
+#   ~/Desktop/Drum-Parts/snare/drums.wav
+#   ~/Desktop/Drum-Parts/hihat/drums.wav
+#   ~/Desktop/Drum-Parts/toms/drums.wav
+#   ~/Desktop/Drum-Parts/cymbals/drums.wav</code></pre>
+
+  <div class="callout">
+    <p class="callout-label">LarsNet Setup (one time, ~15 minutes)</p>
+    <p>LarsNet loads 5 neural networks into memory at once (~2.5 GB RAM). <strong>Close other apps before running it</strong>, especially browsers and DAWs. On 8 GB Macs, it can cause a freeze if memory is tight. 16 GB recommended.</p>
+    <p>LarsNet requires its own Python environment and ~560 MB of pretrained models. Full setup:</p>
+    <pre><code>git clone https://github.com/polimi-ispl/larsnet.git ~/larsnet
+cd ~/larsnet
+python3 -m venv ~/larsnet-env
+source ~/larsnet-env/bin/activate
+pip install torch torchaudio torchcodec soundfile pyyaml numpy tqdm</code></pre>
+    <p>Then download the <a href="https://drive.google.com/uc?id=1U8-5924B1ii1cjv9p0MTPzayb00P4qoL&export=download">pretrained models</a> (562 MB), unzip into <code>~/larsnet/pretrained_larsnet_models/</code>, and you're set. LarsNet runs on CPU — no GPU needed.</p>
+  </div>
+
+  <h3>Tools That Can Do Stage 2</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>Outputs</th>
+        <th>Best At</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>LarsNet</strong></td>
+        <td>Kick, snare, hi-hat, toms, cymbals</td>
+        <td>Kick (excellent), snare (very good)</td>
+        <td>Fastest, most documented</td>
+      </tr>
+      <tr>
+        <td><strong>DOSE</strong></td>
+        <td>Kick, snare, hi-hat</td>
+        <td>Hi-hat transients</td>
+        <td>Newer, research-grade code</td>
+      </tr>
+      <tr>
+        <td><strong>DrumSep</strong></td>
+        <td>Kick, snare, cymbals, toms</td>
+        <td>General use</td>
+        <td>Demucs fork, simple setup</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Hi-hat isolation is hard across all tools — cymbals are complex, high-frequency sounds that bleed across microphones even in real recordings. Kick and snare come out the cleanest.</p>
+
+  <h3>Cloud / GUI Alternatives</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Drum Parts?</th>
+        <th>Cost</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Moises.ai</strong></td>
+        <td>Kick, snare, cymbals + more</td>
+        <td>$4–25/month</td>
+        <td>Best UI, mobile app, tempo/pitch tools. Pro tier for Hi-Fi drum parts.</td>
+      </tr>
+      <tr>
+        <td><strong>Lalal.ai</strong></td>
+        <td>Drums as one group</td>
+        <td>Subscription</td>
+        <td>Highest quality on complex mixes. No individual drum parts.</td>
+      </tr>
+      <tr>
+        <td><strong>Logic Pro / Ableton</strong></td>
+        <td>Drums as one group</td>
+        <td>One-time</td>
+        <td>Built into DAWs you may already own.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What This Saves You vs. Moises Pro</h3>
+
+  <p>Moises Pro (~$220/year) is the most polished commercial option for drum part separation. The open-source pipeline described here replicates most of its drum features at no cost:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>This Pipeline</th>
+        <th>Moises Pro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Drum isolation from full song</strong></td>
+        <td>Demucs (free, local)</td>
+        <td>Included</td>
+      </tr>
+      <tr>
+        <td><strong>Kick/snare/hat separation</strong></td>
+        <td>LarsNet (free, local)</td>
+        <td>Included (Hi-Fi tier)</td>
+      </tr>
+      <tr>
+        <td><strong>BPM detection</strong></td>
+        <td>madmom or librosa (free)</td>
+        <td>Included</td>
+      </tr>
+      <tr>
+        <td><strong>Tempo change without pitch</strong></td>
+        <td>Rubber Band (free)</td>
+        <td>Included</td>
+      </tr>
+      <tr>
+        <td><strong>Works offline</strong></td>
+        <td>Yes, fully local</td>
+        <td>No (cloud-only)</td>
+      </tr>
+      <tr>
+        <td><strong>Upload limits</strong></td>
+        <td>None</td>
+        <td>None on Pro</td>
+      </tr>
+      <tr>
+        <td><strong>Privacy</strong></td>
+        <td>Nothing leaves your computer</td>
+        <td>Files uploaded to cloud</td>
+      </tr>
+      <tr>
+        <td><strong>Polished UI</strong></td>
+        <td>Terminal only</td>
+        <td>Web app + mobile</td>
+      </tr>
+      <tr>
+        <td><strong>Drum-to-MIDI export</strong></td>
+        <td>Not yet (manual pipeline)</td>
+        <td>Included</td>
+      </tr>
+      <tr>
+        <td><strong>Cost</strong></td>
+        <td>$0</td>
+        <td>~$220/year</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>If you process even 10 songs a month, the open-source tools pay for themselves immediately. The main trade-off is setup time (~15 minutes) and a less polished interface. The audio quality for drum separation is comparable — LarsNet's kick and snare isolation matches or exceeds what cloud services produce.</p>
+</section>
+
+<section id="going-further">
+  <h2>Going Further</h2>
+
+  <h3>Four-Stem Mode</h3>
+
+  <p>Get drums, bass, vocals, and "other" (guitars, keys, synths) as four separate files:</p>
+
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh --four-stems "song.wav"</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+  </div>
+
+  <h3>Batch Processing</h3>
+
+  <p>Process an entire folder of audio files at once:</p>
+
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh --batch ~/Music/breaks/</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+  </div>
+
+  <h3>Six-Stem Mode</h3>
+
+  <p>The <code>htdemucs_6s</code> model separates into drums, bass, vocals, guitar, piano, and other:</p>
+
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh --model htdemucs_6s --four-stems "song.wav"</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+  </div>
+
+  <h3>Running Demucs Directly</h3>
+
+  <p>If you'd rather run Demucs yourself instead of using the script:</p>
+
+  <pre><code># Activate the Demucs environment
+source ~/demucs-env/bin/activate
+
+# Isolate drums (two-stem: drums vs. everything else)
+demucs --two-stems drums -n htdemucs "path/to/song.wav"
+
+# Full four-stem separation
+demucs -n htdemucs "path/to/song.wav"
+
+# Results appear in: ./separated/htdemucs/song-name/</code></pre>
+</section>
+
+<section id="customize">
+  <h2>Customize and Iterate</h2>
+
+  <p>The isolation script is a starting point. If you want to change how it works — different output folders, different formats, new features — you don't need to know how to code. You can use an AI assistant to modify the script for you.</p>
+
+  <div class="download-group">
+    <button class="download-btn" onclick="downloadPrompt()">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Customization Prompt
+    </button>
+  </div>
+
+  <p>This file describes how the script works in a way that AI assistants understand. Open it, add a description of what you want changed, then paste the whole thing into <a href="https://claude.com">Claude</a>, ChatGPT, or any coding assistant. It will generate an updated script you can save and run.</p>
+
+  <p>Some things you might ask for:</p>
+  <ul>
+    <li>Output as MP3 instead of WAV (smaller files, easier to share)</li>
+    <li>Automatic BPM detection on isolated breaks</li>
+    <li>Trim output to exact bar boundaries for clean loops</li>
+    <li>Add LarsNet as a second stage for kick/snare/hat separation</li>
+    <li>Normalize output loudness to a specific LUFS target</li>
+    <li>Different folder structure or naming convention</li>
+  </ul>
+
+  <div class="callout">
+    <p class="callout-label">You don't need Claude Code or a paid subscription</p>
+    <p>The prompt works with any AI assistant that can write code — including the free versions of Claude and ChatGPT. Describe what you want in plain English, and it will give you an updated script. You're not locked into any particular tool or workflow.</p>
+  </div>
+</section>
+
+<section>
+  <h2>If Something Goes Wrong</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Problem</th>
+        <th>What to Do</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>"command not found: brew"</strong></td>
+        <td>Homebrew isn't installed. See the <em>About Homebrew</em> note in Setup.</td>
+      </tr>
+      <tr>
+        <td><strong>"command not found: demucs"</strong></td>
+        <td>Setup didn't finish. Run <code>bash ~/Downloads/drum-setup.sh</code> again.</td>
+      </tr>
+      <tr>
+        <td><strong>"Permission denied"</strong></td>
+        <td>Make sure the command starts with <code>bash</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Very slow first run</strong></td>
+        <td>Normal. The AI model (~1.5 GB) downloads on first use.</td>
+      </tr>
+      <tr>
+        <td><strong>Drums sound thin or have artifacts</strong></td>
+        <td>Try the fine-tuned model: add <code>--model htdemucs_ft</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Other instruments bleeding through</strong></td>
+        <td>Some bleed is normal. Fine-tuned model reduces it. Higher quality source audio helps too.</td>
+      </tr>
+      <tr>
+        <td><strong>"ERROR: unable to download video"</strong></td>
+        <td>Update yt-dlp: <code>brew upgrade yt-dlp</code></td>
+      </tr>
+      <tr>
+        <td><strong>"Sign in to confirm you're not a bot"</strong></td>
+        <td>YouTube is blocking the download. Make sure you're signed into YouTube in Safari (or Chrome), then try again. The script automatically passes your browser cookies to bypass this.</td>
+      </tr>
+      <tr>
+        <td><strong>Ran out of disk space</strong></td>
+        <td>Free up at least 1 GB and try again.</td>
+      </tr>
+      <tr>
+        <td><strong>Mac freezes or force-restarts during LarsNet</strong></td>
+        <td>LarsNet loads ~2.5 GB of models into RAM. Close browsers and other apps before running it. If your Mac has 8 GB RAM, trim the audio to just the section you need before processing.</td>
+      </tr>
+      <tr>
+        <td><strong>"python3: command not found"</strong></td>
+        <td>Python 3 isn't installed. Install it: <code>brew install python3</code></td>
+      </tr>
+      <tr>
+        <td><strong>macOS says the file can't be opened</strong></td>
+        <td>Don't double-click the script file. Always run it through Terminal with <code>bash</code> in front.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Tools Reference</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>What It Does</th>
+        <th>Install</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Demucs</strong></td>
+        <td>AI audio separation — the core of this process</td>
+        <td>Setup script handles this</td>
+      </tr>
+      <tr>
+        <td><strong>FFmpeg</strong></td>
+        <td>Converts between audio formats</td>
+        <td>Setup script handles this</td>
+      </tr>
+      <tr>
+        <td><strong>yt-dlp</strong></td>
+        <td>Downloads audio from YouTube</td>
+        <td>Setup script handles this</td>
+      </tr>
+      <tr>
+        <td><strong>LarsNet</strong></td>
+        <td>Splits drums into kick, snare, hi-hat, toms, cymbals</td>
+        <td><a href="https://github.com/polimi-ispl/larsnet">github.com/polimi-ispl/larsnet</a></td>
+      </tr>
+      <tr>
+        <td><strong>Homebrew</strong></td>
+        <td>Installs tools on macOS</td>
+        <td><a href="https://brew.sh">brew.sh</a></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer style="margin-top: var(--space-xxl); padding-top: var(--space-lg); border-top: 2px solid var(--color-linen); color: var(--color-text-muted); font-size: 14px;">
+  <p>Built with Claude Code. Based on <a href="https://github.com/facebookresearch/demucs">Demucs</a> and <a href="https://github.com/polimi-ispl/larsnet">LarsNet</a>.</p>
+</footer>
+
+</div>
+
+<script>
+function downloadFile(filename, content) {
+  var blob = new Blob([content], { type: 'text/plain' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+function copyCmd(btn) {
+  var block = btn.closest('.cmd-block');
+  var code = block.querySelector('code');
+  navigator.clipboard.writeText(code.textContent.trim()).then(function() {
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function downloadSetup() {
+  var script = [
+    '#!/bin/bash',
+    '# drum-setup.sh — Install everything needed for drum stem splitting',
+    '#',
+    '# Usage: bash drum-setup.sh',
+    '# Tested on macOS 12+ (Intel and Apple Silicon)',
+    '',
+    'set -euo pipefail',
+    '',
+    'GREEN="\\033[0;32m"; RED="\\033[0;31m"; DIM="\\033[2m"; BOLD="\\033[1m"; NC="\\033[0m"',
+    'ok()  { echo -e "${GREEN}+${NC}  $*"; }',
+    'err() { echo -e "${RED}x${NC}  $*"; }',
+    'dim() { echo -e "${DIM}   $*${NC}"; }',
+    'hdr() { echo -e "\\n${BOLD}$*${NC}"; }',
+    '',
+    'echo ""',
+    'echo "=== Drum Stem Splitting — Setup ==="',
+    'echo ""',
+    '',
+    '# ── Homebrew ──────────────────────────────────────────────────',
+    'if ! command -v brew &> /dev/null; then',
+    '  err "Homebrew not found."',
+    '  echo ""',
+    '  echo "  Homebrew is a free tool that installs software on Macs."',
+    '  echo "  To install it, paste this into Terminal and press Enter:"',
+    '  echo ""',
+    '  echo "  /bin/bash -c \\\"\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\\\""',
+    '  echo ""',
+    '  echo "  Then run this setup script again."',
+    '  exit 1',
+    'fi',
+    'ok "Homebrew"',
+    '',
+    '# ── FFmpeg ────────────────────────────────────────────────────',
+    'if command -v ffmpeg &> /dev/null; then',
+    '  ok "FFmpeg (already installed)"',
+    'else',
+    '  hdr "Installing FFmpeg (audio conversion tool)..."',
+    '  brew install ffmpeg',
+    '  ok "FFmpeg"',
+    'fi',
+    '',
+    '# ── yt-dlp ────────────────────────────────────────────────────',
+    'if command -v yt-dlp &> /dev/null; then',
+    '  ok "yt-dlp (already installed)"',
+    'else',
+    '  hdr "Installing yt-dlp (YouTube downloader)..."',
+    '  brew install yt-dlp',
+    '  ok "yt-dlp"',
+    'fi',
+    '',
+    '# ── Python venv + Demucs ─────────────────────────────────────',
+    'VENV_DIR="${DEMUCS_VENV:-$HOME/demucs-env}"',
+    '',
+    'if [[ -f "$VENV_DIR/bin/activate" ]]; then',
+    '  source "$VENV_DIR/bin/activate"',
+    '  if command -v demucs &> /dev/null; then',
+    '    ok "Demucs (already installed in $VENV_DIR)"',
+    '    deactivate',
+    '  else',
+    '    hdr "Demucs environment exists but Demucs is missing. Installing..."',
+    '    pip install --quiet demucs',
+    '    ok "Demucs"',
+    '    deactivate',
+    '  fi',
+    'else',
+    '  hdr "Setting up Demucs (AI audio separation)..."',
+    '  dim "Creating Python environment at $VENV_DIR..."',
+    '  python3 -m venv "$VENV_DIR"',
+    '  source "$VENV_DIR/bin/activate"',
+    '  dim "Installing Demucs — this takes a few minutes on first run..."',
+    '  pip install --quiet demucs',
+    '  ok "Demucs (installed in $VENV_DIR)"',
+    '  deactivate',
+    'fi',
+    '',
+    '# ── Pre-download the default model ───────────────────────────',
+    'hdr "Checking Demucs model..."',
+    'source "$VENV_DIR/bin/activate"',
+    'TMPDIR_SETUP=$(mktemp -d)',
+    'ffmpeg -f lavfi -i anullsrc=r=44100:cl=stereo -t 1 -q:a 0 "$TMPDIR_SETUP/silence.wav" -y 2>/dev/null',
+    'if demucs --two-stems drums -n htdemucs "$TMPDIR_SETUP/silence.wav" -o "$TMPDIR_SETUP/out" 2>/dev/null; then',
+    '  ok "Demucs model ready"',
+    'else',
+    '  ok "Demucs model will download on first use"',
+    'fi',
+    'rm -rf "$TMPDIR_SETUP"',
+    'deactivate',
+    '',
+    '# ── Done ─────────────────────────────────────────────────────',
+    'echo ""',
+    'echo "=== Setup complete ==="',
+    'echo ""',
+    'echo "Next:"',
+    'echo "  1. Download the isolation script from the guide page"',
+    'echo "  2. In Terminal, run:"',
+    'echo "     bash ~/Downloads/isolate-drums.sh path/to/song.wav"',
+    'echo ""',
+    'echo "  Or drag an audio file into Terminal after typing the command."',
+    'echo ""',
+  ].join('\n');
+
+  downloadFile('drum-setup.sh', script);
+}
+
+function downloadIsolate() {
+  var script = [
+    '#!/bin/bash',
+    '# isolate-drums.sh — Extract drums from any audio file or YouTube link',
+    '#',
+    '# Usage:',
+    '#   bash isolate-drums.sh song.wav',
+    '#   bash isolate-drums.sh "https://youtu.be/..."',
+    '#   bash isolate-drums.sh --model htdemucs_ft song.wav',
+    '#   bash isolate-drums.sh --four-stems song.wav',
+    '#   bash isolate-drums.sh --batch ~/Music/breaks/',
+    '#',
+    '# Output: ~/Desktop/Drum-Stems/<song-name>/',
+    '',
+    'set -euo pipefail',
+    '',
+    'GREEN="\\033[0;32m"; RED="\\033[0;31m"; DIM="\\033[2m"; BOLD="\\033[1m"; NC="\\033[0m"',
+    'ok()  { echo -e "${GREEN}+${NC}  $*"; }',
+    'err() { echo -e "${RED}x${NC}  $*" >&2; }',
+    'dim() { echo -e "${DIM}   $*${NC}"; }',
+    'hdr() { echo -e "\\n${BOLD}$*${NC}"; }',
+    '',
+    '# ── Parse arguments ──────────────────────────────────────────',
+    'MODEL="htdemucs"',
+    'FOUR_STEMS=false',
+    'BATCH_MODE=false',
+    'INPUT=""',
+    '',
+    'while [[ $# -gt 0 ]]; do',
+    '  case "$1" in',
+    '    --model)',
+    '      MODEL="$2"',
+    '      shift 2',
+    '      ;;',
+    '    --four-stems)',
+    '      FOUR_STEMS=true',
+    '      shift',
+    '      ;;',
+    '    --batch)',
+    '      BATCH_MODE=true',
+    '      INPUT="$2"',
+    '      shift 2',
+    '      ;;',
+    '    -h|--help)',
+    '      echo "Usage: bash isolate-drums.sh [options] <file-or-url>"',
+    '      echo ""',
+    '      echo "Options:"',
+    '      echo "  --model <name>   Demucs model (htdemucs, htdemucs_ft, htdemucs_6s)"',
+    '      echo "  --four-stems     Output drums, bass, vocals, other (instead of just drums)"',
+    '      echo "  --batch <dir>    Process all audio files in a folder"',
+    '      echo "  -h, --help       Show this help"',
+    '      exit 0',
+    '      ;;',
+    '    *)',
+    '      INPUT="$1"',
+    '      shift',
+    '      ;;',
+    '  esac',
+    'done',
+    '',
+    'if [[ -z "$INPUT" ]]; then',
+    '  err "No input provided."',
+    '  echo ""',
+    '  echo "  Usage: bash isolate-drums.sh song.wav"',
+    '  echo "  Or:    bash isolate-drums.sh \\"https://youtu.be/...\\""',
+    '  echo ""',
+    '  echo "  Tip: You can drag an audio file from Finder into"',
+    '  echo "  this Terminal window to paste its path."',
+    '  exit 1',
+    'fi',
+    '',
+    '# ── Check tools ──────────────────────────────────────────────',
+    'VENV_DIR="${DEMUCS_VENV:-$HOME/demucs-env}"',
+    '',
+    'if [[ ! -f "$VENV_DIR/bin/activate" ]]; then',
+    '  err "Demucs not found. Run the setup script first:"',
+    '  echo "  bash ~/Downloads/drum-setup.sh"',
+    '  exit 1',
+    'fi',
+    '',
+    'source "$VENV_DIR/bin/activate"',
+    '',
+    'if ! command -v demucs &> /dev/null; then',
+    '  err "Demucs not found in $VENV_DIR. Run setup again."',
+    '  deactivate',
+    '  exit 1',
+    'fi',
+    '',
+    'OUTPUT_BASE="$HOME/Desktop/Drum-Stems"',
+    'mkdir -p "$OUTPUT_BASE"',
+    '',
+    '# ── Process one file ─────────────────────────────────────────',
+    'process_file() {',
+    '  local SOURCE_FILE="$1"',
+    '  local SONG_NAME',
+    '  SONG_NAME=$(basename "$SOURCE_FILE" | sed "s/\\.[^.]*$//")',
+    '',
+    '  hdr "Processing: $SONG_NAME"',
+    '',
+    '  local TMPDIR',
+    '  TMPDIR=$(mktemp -d)',
+    '  local DEMUCS_OUT="$TMPDIR/separated"',
+    '',
+    '  if [[ "$FOUR_STEMS" == true ]]; then',
+    '    dim "Running Demucs (4-stem mode, model: $MODEL)..."',
+    '    demucs -n "$MODEL" "$SOURCE_FILE" -o "$DEMUCS_OUT" 2>&1 | while IFS= read -r line; do',
+    '      if [[ "$line" == *"%"* ]]; then',
+    '        printf "\\r   %s" "$line"',
+    '      fi',
+    '    done',
+    '    echo ""',
+    '  else',
+    '    dim "Running Demucs (drums isolation, model: $MODEL)..."',
+    '    demucs --two-stems drums -n "$MODEL" "$SOURCE_FILE" -o "$DEMUCS_OUT" 2>&1 | while IFS= read -r line; do',
+    '      if [[ "$line" == *"%"* ]]; then',
+    '        printf "\\r   %s" "$line"',
+    '      fi',
+    '    done',
+    '    echo ""',
+    '  fi',
+    '',
+    '  local STEM_DIR',
+    '  STEM_DIR=$(find "$DEMUCS_OUT" -mindepth 2 -maxdepth 2 -type d | head -1)',
+    '',
+    '  if [[ -z "$STEM_DIR" || ! -d "$STEM_DIR" ]]; then',
+    '    err "Demucs did not produce output. Check the file format and try again."',
+    '    rm -rf "$TMPDIR"',
+    '    return 1',
+    '  fi',
+    '',
+    '  local DEST="$OUTPUT_BASE/$SONG_NAME"',
+    '  mkdir -p "$DEST"',
+    '  cp "$STEM_DIR"/*.wav "$DEST/"',
+    '',
+    '  local COUNT',
+    '  COUNT=$(ls -1 "$DEST"/*.wav 2>/dev/null | wc -l | tr -d " ")',
+    '',
+    '  ok "$SONG_NAME — $COUNT stems saved to:"',
+    '  echo "   $DEST/"',
+    '  ls -1 "$DEST"/*.wav | while read -r f; do',
+    '    echo "   $(basename "$f")"',
+    '  done',
+    '',
+    '  rm -rf "$TMPDIR"',
+    '}',
+    '',
+    '# ── Handle YouTube URLs ──────────────────────────────────────',
+    'download_youtube() {',
+    '  local URL="$1"',
+    '  local TMPDIR',
+    '  TMPDIR=$(mktemp -d)',
+    '',
+    '  if ! command -v yt-dlp &> /dev/null; then',
+    '    err "yt-dlp not found. Install it with: brew install yt-dlp"',
+    '    return 1',
+    '  fi',
+    '',
+    '  hdr "Downloading from YouTube..."',
+    '  # --cookies-from-browser grabs your login session so YouTube',
+    '  # does not block the download with a bot-check page.',
+    '  local COOKIE_FLAG=""',
+    '  for browser in safari chrome firefox; do',
+    '    if yt-dlp --cookies-from-browser "$browser" --simulate "https://www.youtube.com/watch?v=dQw4w9WgXcQ" &>/dev/null 2>&1; then',
+    '      COOKIE_FLAG="--cookies-from-browser $browser"',
+    '      break',
+    '    fi',
+    '  done',
+    '  yt-dlp $COOKIE_FLAG -x --audio-format wav --audio-quality 0 \\',
+    '    -o "$TMPDIR/%(title)s.%(ext)s" "$URL" 2>&1 | while IFS= read -r line; do',
+    '    if [[ "$line" == *"Destination"* || "$line" == *"Downloading"* || "$line" == *"%"* ]]; then',
+    '      dim "$line"',
+    '    fi',
+    '  done',
+    '',
+    '  local DL_FILE',
+    '  DL_FILE=$(find "$TMPDIR" -name "*.wav" -type f | head -1)',
+    '',
+    '  if [[ -z "$DL_FILE" ]]; then',
+    '    err "Download failed. Check the URL and try again."',
+    '    dim "If this keeps happening, try: brew upgrade yt-dlp"',
+    '    dim "If you see a bot-check error, make sure Safari (or Chrome)"',
+    '    dim "is signed into YouTube, then try again."',
+    '    rm -rf "$TMPDIR"',
+    '    return 1',
+    '  fi',
+    '',
+    '  ok "Downloaded: $(basename "$DL_FILE")"',
+    '  echo "$DL_FILE"',
+    '}',
+    '',
+    '# ── Main ─────────────────────────────────────────────────────',
+    'echo ""',
+    'echo "=== Drum Stem Isolation ==="',
+    '',
+    'if [[ "$BATCH_MODE" == true ]]; then',
+    '  if [[ ! -d "$INPUT" ]]; then',
+    '    err "Not a directory: $INPUT"',
+    '    deactivate',
+    '    exit 1',
+    '  fi',
+    '',
+    '  FILE_COUNT=0',
+    '  for f in "$INPUT"/*.{wav,mp3,flac,aiff,ogg,m4a,wma} 2>/dev/null; do',
+    '    [[ -f "$f" ]] || continue',
+    '    process_file "$f"',
+    '    FILE_COUNT=$((FILE_COUNT + 1))',
+    '  done',
+    '',
+    '  if [[ $FILE_COUNT -eq 0 ]]; then',
+    '    err "No audio files found in $INPUT"',
+    '    dim "Supported formats: wav, mp3, flac, aiff, ogg, m4a, wma"',
+    '  else',
+    '    echo ""',
+    '    ok "Done — processed $FILE_COUNT files"',
+    '    ok "Results in: $OUTPUT_BASE/"',
+    '  fi',
+    '',
+    'elif [[ "$INPUT" == http* ]]; then',
+    '  DL_RESULT=$(download_youtube "$INPUT")',
+    '  DL_FILE=$(echo "$DL_RESULT" | tail -1)',
+    '',
+    '  if [[ -f "$DL_FILE" ]]; then',
+    '    process_file "$DL_FILE"',
+    '    rm -f "$DL_FILE"',
+    '    rmdir "$(dirname "$DL_FILE")" 2>/dev/null || true',
+    '  else',
+    '    deactivate',
+    '    exit 1',
+    '  fi',
+    '',
+    'elif [[ -f "$INPUT" ]]; then',
+    '  process_file "$INPUT"',
+    '',
+    'else',
+    '  err "File not found: $INPUT"',
+    '  echo ""',
+    '  echo "  Make sure the file path is correct."',
+    '  echo "  Tip: Drag the file from Finder into Terminal to paste the path."',
+    '  deactivate',
+    '  exit 1',
+    'fi',
+    '',
+    'deactivate',
+    'echo ""',
+  ].join('\n');
+
+  downloadFile('isolate-drums.sh', script);
+}
+
+function downloadPrompt() {
+  var prompt = [
+    '# Drum Stem Isolation — LLM Prompt',
+    '',
+    'Paste this entire file into Claude, ChatGPT, or any coding assistant.',
+    'It describes the drum isolation pipeline and lets you ask for changes.',
+    '',
+    '---',
+    '',
+    '## Context',
+    '',
+    'I have a bash script called `isolate-drums.sh` that extracts drums from',
+    'audio files using Demucs. The current pipeline:',
+    '',
+    '1. Takes a file path or YouTube URL as input',
+    '2. Downloads audio via yt-dlp if given a URL (uses browser cookies to bypass bot checks)',
+    '3. Runs Demucs with `--two-stems drums -n htdemucs` to isolate drums',
+    '4. Copies `drums.wav` and `no_drums.wav` to ~/Desktop/Drum-Stems/<song>/',
+    '',
+    'The script supports these flags:',
+    '- `--model <name>` to choose htdemucs, htdemucs_ft, or htdemucs_6s',
+    '- `--four-stems` for drums/bass/vocals/other as four separate files',
+    '- `--batch <dir>` to process all audio files in a folder',
+    '',
+    '## My Setup',
+    '',
+    '- **OS:** macOS (Apple Silicon / Intel)',
+    '- **Demucs venv:** ~/demucs-env',
+    '- **Tools installed:** ffmpeg, yt-dlp, demucs (via drum-setup.sh)',
+    '',
+    '## What I Want to Change',
+    '',
+    '[Describe what you want here. Examples:]',
+    '',
+    '- Output MP3 instead of WAV',
+    '- Add BPM detection for each isolated drum track',
+    '- Trim output to exact bar boundaries for clean loops',
+    '- Add LarsNet as a second stage to split drums into kick/snare/hat',
+    '- Normalize all output to -14 LUFS',
+    '- Change the output folder location',
+    '- Add a --loop flag that trims to the nearest clean loop point',
+    '',
+    '## Technical Requirements',
+    '',
+    'Keep these constraints:',
+    '',
+    '- **macOS compatible.** Must run on Mac with no Linux-only tools.',
+    '- **Idempotent.** Re-running on the same file should skip work already done.',
+    '- **Clear output.** Print exactly where files are when done.',
+    '- **Error handling.** If a step fails, say what went wrong and how to fix it.',
+    '- **Single file.** Output a single bash script I can save and run.',
+    '',
+    '## Available Tools for Advanced Features',
+    '',
+    'If I ask for granular drum separation (kick/snare/hat), these tools work:',
+    '',
+    '- **LarsNet** (github.com/polimi-ispl/larsnet)',
+    '  Splits drums into kick, snare, hi-hat, toms, cymbals.',
+    '  Input: folder containing drum WAV files. Output: 5 subdirectories with separated WAVs.',
+    '  Install: git clone + python3 -m venv ~/larsnet-env + pip install torch torchaudio torchcodec soundfile pyyaml numpy tqdm',
+    '  Download pretrained models (562 MB) from Google Drive link in repo README.',
+    '  Run: python separate.py -i /path/to/folder/ -o /path/to/output/ -d cpu',
+    '  Note: Loads ~2.5 GB into RAM. Close other apps. 16 GB RAM recommended.',
+    '',
+    '- **DOSE** (github.com/HSUNEH/DOSE)',
+    '  Extracts kick, snare, hi-hat one-shots from drum audio.',
+    '  Better hi-hat quality than LarsNet but less documented.',
+    '',
+    '- **DrumSep** (github.com/inagoy/drumsep)',
+    '  Demucs fork for kick/snare/cymbals/toms. Simple bash wrapper.',
+    '',
+    'The recommended approach: Demucs first (isolate drum bus), then LarsNet',
+    '(split into individual components). Two-stage cascade.',
+    '',
+    '## Output',
+    '',
+    'Generate an updated bash script. Keep the same interface',
+    '(file-or-url as argument, --model, --four-stems, --batch flags)',
+    'and add whatever I asked for.',
+    '',
+  ].join('\n');
+
+  downloadFile('drum-pipeline-prompt.md', prompt);
+}
+</script>
+
+</body>
+</html>
