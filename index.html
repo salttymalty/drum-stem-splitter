@@ -387,7 +387,7 @@ header {
 
 <header>
   <h1>Isolate Drums from Any Song</h1>
-  <p class="subtitle">Use free, open-source AI to extract drum tracks from recordings. Runs on your Mac, no account needed, nothing leaves your computer. No programming experience required.</p>
+  <p class="subtitle">Free, open-source AI drum extraction. Runs locally on your Mac — no account, no upload limits, nothing leaves your computer.</p>
 </header>
 
 <section>
@@ -397,7 +397,7 @@ header {
 
   <p>This uses <strong>Demucs</strong>, an AI model built by Meta Research that runs locally on your computer. There's no subscription, no upload limit, and no internet connection needed after setup. A typical song takes 1–3 minutes to process.</p>
 
-  <p>Everything on this page works through <strong>Terminal</strong>, the text-based command app built into every Mac. If you've never used it, that's fine — the guide walks through every step, and you'll mostly be copying and pasting.</p>
+  <p>Everything runs through <strong>Terminal</strong>. You'll mostly be copying and pasting commands.</p>
 
   <div class="download-group">
     <button class="download-btn" onclick="downloadSetup()">
@@ -438,161 +438,70 @@ header {
     </tbody>
   </table>
 
-  <p>The isolation isn't perfect — you may hear faint traces of other instruments bleeding through, especially on dense mixes. But on most well-recorded music, the drums come out remarkably clean.</p>
-
-  <p>Each stem file is about 40–50 MB for a typical 4-minute song. WAV files are uncompressed audio — the highest quality format, but large. If you need smaller files, the <a href="#customize">Customize and Iterate</a> section explains how to output MP3 instead.</p>
+  <p>You may hear faint bleed on dense mixes, but on well-recorded music the drums come out remarkably clean. Output is uncompressed WAV (~50 MB per stem). See <a href="#customize">Customize and Iterate</a> to switch to MP3.</p>
 </section>
 
 <section>
-  <h2>Before You Start</h2>
+  <h2>Requirements</h2>
 
-  <div class="intro-box">
-    <h3>What's Terminal?</h3>
-    <p>Terminal is an app on your Mac that lets you run commands by typing them. It comes pre-installed — you don't need to download anything.</p>
-    <p><strong>To open it:</strong> Press <strong>Command + Space</strong> to open Spotlight, type <strong>Terminal</strong>, and press Enter.</p>
-    <p>You'll see a window with a blinking cursor. That's where you'll paste the commands from this guide. Each command runs when you press Enter.</p>
-  </div>
-
-  <h3>System Requirements</h3>
   <ul>
-    <li><strong>macOS</strong> 11.0 or newer (to check: click the Apple menu in the top-left corner, then "About This Mac")</li>
-    <li><strong>Disk space:</strong> About 2 GB for the tools, plus ~200 MB per song during processing</li>
-    <li><strong>RAM:</strong> 8 GB minimum. 16 GB is better for long songs.</li>
-    <li><strong>Time:</strong> Setup takes 10–15 minutes (mostly waiting for downloads). Each song takes 1–3 minutes after that.</li>
+    <li><strong>macOS</strong> 11.0+</li>
+    <li><strong>Disk:</strong> ~2 GB for tools + ~200 MB per song during processing</li>
+    <li><strong>RAM:</strong> 8 GB minimum, 16 GB recommended</li>
+    <li><strong>Homebrew</strong> installed (<a href="https://brew.sh">brew.sh</a> if you don't have it)</li>
   </ul>
 </section>
 
 <section>
   <h2>Setup (One Time)</h2>
 
-  <p>You only need to do this once. It installs three free tools: <strong>Demucs</strong> (the AI that splits audio), <strong>FFmpeg</strong> (converts audio formats), and <strong>yt-dlp</strong> (downloads from YouTube, if you want that).</p>
+  <p>Run once. Installs <strong>Demucs</strong> (AI audio separation), <strong>FFmpeg</strong> (audio conversion), and <strong>yt-dlp</strong> (YouTube downloads).</p>
 
   <div class="instruction-step">
     <div class="step-number">1</div>
     <div class="step-content">
       <p class="step-label">Download the setup script</p>
-      <p>Click the <strong>"Download Setup Script"</strong> button at the top of this page. The file (<code>drum-setup.sh</code>) will appear in your Downloads folder.</p>
+      <p>Click <strong>"Download Setup Script"</strong> at the top of this page.</p>
     </div>
   </div>
 
   <div class="instruction-step">
     <div class="step-number">2</div>
     <div class="step-content">
-      <p class="step-label">Open Terminal</p>
-      <p>Press <strong>Command + Space</strong>, type <strong>Terminal</strong>, press Enter.</p>
-    </div>
-  </div>
-
-  <div class="instruction-step">
-    <div class="step-number">3</div>
-    <div class="step-content">
-      <p class="step-label">Run the setup script</p>
-      <p>Copy this command, paste it into Terminal, and press Enter:</p>
+      <p class="step-label">Run it</p>
       <div class="cmd-block">
         <code>bash ~/Downloads/drum-setup.sh</code>
         <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
       </div>
-      <p>The script will show a <code>+</code> next to each tool as it installs. If anything fails, it tells you what went wrong.</p>
-      <p>The first run downloads the Demucs AI model (~1.5 GB). This is the slowest part. After that, everything runs locally.</p>
+      <p>Shows a <code>+</code> for each tool as it installs. First run downloads the Demucs model (~1.5 GB). Safe to re-run — skips anything already installed.</p>
     </div>
-  </div>
-
-  <div class="instruction-step">
-    <div class="step-number">4</div>
-    <div class="step-content">
-      <p class="step-label">Verify it worked</p>
-      <p>You should see <strong>"Setup complete"</strong> at the bottom. If you see any red <code>x</code> markers, the script will explain what to do. It's safe to run the setup script multiple times — it skips anything already installed.</p>
-    </div>
-  </div>
-
-  <div class="callout">
-    <p class="callout-label">About Homebrew</p>
-    <p>The setup script uses <strong>Homebrew</strong>, a free tool that installs software on Macs. If you don't have it, the script will tell you. To install it, paste this into Terminal:</p>
-    <div class="cmd-block">
-      <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
-      <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
-    </div>
-    <p>Then run the setup script again.</p>
   </div>
 </section>
 
 <section>
   <h2>Isolate Drums from a Song</h2>
 
-  <p>After setup, this is the part you'll repeat for each song. There are two ways to give it audio: a file on your computer, or a YouTube link.</p>
+  <p>Two ways to give it audio: a local file, or a YouTube URL.</p>
 
-  <h3>Option A: From an Audio File</h3>
+  <h3>From a File</h3>
 
-  <p>If you have an audio file on your computer, this is the fastest path. Supported formats: WAV, MP3, FLAC, AIFF, OGG, M4A, and WMA.</p>
+  <p>Supports WAV, MP3, FLAC, AIFF, OGG, M4A, WMA. Type the command, then drag the file into Terminal to paste the path:</p>
 
-  <div class="instruction-step">
-    <div class="step-number">1</div>
-    <div class="step-content">
-      <p class="step-label">Open Terminal</p>
-      <p>If it's not already open: <strong>Command + Space</strong>, type <strong>Terminal</strong>, press Enter.</p>
-    </div>
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh /path/to/song.wav</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
   </div>
 
-  <div class="instruction-step">
-    <div class="step-number">2</div>
-    <div class="step-content">
-      <p class="step-label">Type the beginning of the command</p>
-      <p>Type this, but <strong>don't press Enter yet</strong> — leave a space at the end:</p>
-      <div class="cmd-block">
-        <code>bash ~/Downloads/isolate-drums.sh </code>
-        <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
-      </div>
-    </div>
+  <h3>From YouTube</h3>
+
+  <p>Downloads the audio automatically, then splits:</p>
+
+  <div class="cmd-block">
+    <code>bash ~/Downloads/isolate-drums.sh "https://youtube.com/watch?v=VIDEO_ID"</code>
+    <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
   </div>
 
-  <div class="instruction-step">
-    <div class="step-number">3</div>
-    <div class="step-content">
-      <p class="step-label">Drag your audio file into the Terminal window</p>
-      <p>Find the audio file in Finder, then drag it directly into the Terminal window. This pastes the file path automatically — no need to type it. Now press Enter.</p>
-    </div>
-  </div>
-
-  <div class="instruction-step">
-    <div class="step-number">4</div>
-    <div class="step-content">
-      <p class="step-label">Wait for it to finish</p>
-      <p>You'll see progress messages as Demucs works. A typical song takes 1–3 minutes. When it's done, it tells you exactly where to find the files.</p>
-    </div>
-  </div>
-
-  <h3>Option B: From a YouTube Link</h3>
-
-  <p>If you don't have the audio file, the script can download it from YouTube first.</p>
-
-  <div class="instruction-step">
-    <div class="step-number">1</div>
-    <div class="step-content">
-      <p class="step-label">Copy the YouTube URL</p>
-      <p>Go to the YouTube video and copy the URL from your browser's address bar.</p>
-    </div>
-  </div>
-
-  <div class="instruction-step">
-    <div class="step-number">2</div>
-    <div class="step-content">
-      <p class="step-label">Run the isolation script with the URL</p>
-      <p>In Terminal, type:</p>
-      <div class="cmd-block">
-        <code>bash ~/Downloads/isolate-drums.sh "https://youtube.com/watch?v=YOUR_VIDEO_ID"</code>
-        <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
-      </div>
-      <p>Replace the URL with the one you copied. Keep the quotation marks.</p>
-    </div>
-  </div>
-
-  <div class="instruction-step">
-    <div class="step-number">3</div>
-    <div class="step-content">
-      <p class="step-label">Wait for download + processing</p>
-      <p>The script downloads the audio first (~30 seconds), then runs Demucs (~1–3 minutes). Output files appear on your Desktop when it's done.</p>
-    </div>
-  </div>
+  <p>~30 seconds to download, then 1–3 minutes for separation. Output lands on your Desktop.</p>
 </section>
 
 <section>
